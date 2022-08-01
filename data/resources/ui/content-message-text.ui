@@ -29,5 +29,8 @@
         </property>
       </object>
     </child>
+    <child>
+      <object class="ContentMessageLinkPreview" id="link_preview"/>
+    </child>
   </template>
 </interface>

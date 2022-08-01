@@ -8,7 +8,7 @@ use std::hash::{Hash, Hasher};
 use tdlib::enums::MessageContent;
 
 use crate::session::content::message_row::{
-    MessageBase, MessageBaseImpl, MessageIndicators, MessageLabel,
+    LinkPreview, MessageBase, MessageBaseImpl, MessageIndicators, MessageLabel,
 };
 use crate::tdlib::{BoxedMessageContent, Chat, ChatType, Message, MessageSender, SponsoredMessage};
 use crate::utils::parse_formatted_text;
@@ -32,6 +32,8 @@ mod imp {
         pub(super) content_label: TemplateChild<MessageLabel>,
         #[template_child]
         pub(super) indicators: TemplateChild<MessageIndicators>,
+        #[template_child]
+        pub(super) link_preview: TemplateChild<LinkPreview>,
     }
 
     #[glib::object_subclass]
@@ -199,6 +201,18 @@ impl MessageBaseExt for MessageText {
             bindings.push(text_binding);
         } else {
             unreachable!("Unexpected message type: {:?}", message);
+        }
+
+        if let Some(message) = message.downcast_ref::<Message>() {
+            if let MessageContent::MessageText(content) = message.content().0 {
+                if content.web_page.is_some() {
+                    imp.link_preview.set_message(message)
+                } else {
+                    imp.link_preview.set_visible(false)
+                }
+            } else {
+                imp.link_preview.set_visible(false)
+            }
         }
 
         imp.message.replace(Some(message));

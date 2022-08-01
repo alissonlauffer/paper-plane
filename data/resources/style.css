@@ -254,3 +254,12 @@ window.chat-info .main-page {
 window.chat-info .main-page > list {
   margin-top: 12px;
 }
+
+.separator {
+  background-color: alpha(@accent_bg_color, 0.2);
+  padding-left: 2px;
+}
+
+.separator.outgoing {
+  background-color: alpha(@accent_fg_color, 0.5);
+}

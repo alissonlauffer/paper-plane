@@ -1181,9 +1181,9 @@ fn stringify_action(action: &ChatAction) -> String {
             if show_sender {
                 match action_group.len() {
                     1 => gettext!(
-                        "{} is uploading a document ({}%)",
+                        "{} is uploading a document{}",
                         sender_name(action_group[0].sender(), false),
-                        action.progress,
+                        action_progress(action.progress),
                     ),
                     2 => gettext!(
                         "{} and {} are uploading documents",
@@ -1193,16 +1193,16 @@ fn stringify_action(action: &ChatAction) -> String {
                     len => gettext!("{} people are uploading documents", len),
                 }
             } else {
-                gettext!("uploading a document ({}%)", action.progress)
+                gettext!("uploading a document{}", action_progress(action.progress))
             }
         }
         UploadingPhoto(action) => {
             if show_sender {
                 match action_group.len() {
                     1 => gettext!(
-                        "{} is uploading a photo ({}%)",
+                        "{} is uploading a photo{}",
                         sender_name(action_group[0].sender(), false),
-                        action.progress,
+                        action_progress(action.progress),
                     ),
                     2 => gettext!(
                         "{} and {} are uploading photos",
@@ -1212,16 +1212,16 @@ fn stringify_action(action: &ChatAction) -> String {
                     len => gettext!("{} people are uploading photos", len),
                 }
             } else {
-                gettext!("uploading a photo ({}%)", action.progress)
+                gettext!("uploading a photo{}", action_progress(action.progress))
             }
         }
         UploadingVideo(action) => {
             if show_sender {
                 match action_group.len() {
                     1 => gettext!(
-                        "{} is uploading a video ({}%)",
+                        "{} is uploading a video{}",
                         sender_name(action_group[0].sender(), false),
-                        action.progress,
+                        action_progress(action.progress),
                     ),
                     2 => gettext!(
                         "{} and {} are uploading videos",
@@ -1231,16 +1231,16 @@ fn stringify_action(action: &ChatAction) -> String {
                     len => gettext!("{} people are uploading videos", len),
                 }
             } else {
-                gettext!("uploading a video ({}%)", action.progress)
+                gettext!("uploading a video{}", action_progress(action.progress))
             }
         }
         UploadingVideoNote(action) => {
             if show_sender {
                 match action_group.len() {
                     1 => gettext!(
-                        "{} is uploading a video note ({}%)",
+                        "{} is uploading a video note{}",
                         sender_name(action_group[0].sender(), false),
-                        action.progress,
+                        action_progress(action.progress),
                     ),
                     2 => gettext!(
                         "{} and {} are uploading video notes",
@@ -1250,16 +1250,16 @@ fn stringify_action(action: &ChatAction) -> String {
                     len => gettext!("{} people are uploading video notes", len),
                 }
             } else {
-                gettext!("uploading a video note ({}%)", action.progress)
+                gettext!("uploading a video note{}", action_progress(action.progress))
             }
         }
         UploadingVoiceNote(action) => {
             if show_sender {
                 match action_group.len() {
                     1 => gettext!(
-                        "{} is uploading a voice note ({}%)",
+                        "{} is uploading a voice note{}",
                         sender_name(action_group[0].sender(), false),
-                        action.progress,
+                        action_progress(action.progress),
                     ),
                     2 => gettext!(
                         "{} and {} are uploading voice notes",
@@ -1269,7 +1269,7 @@ fn stringify_action(action: &ChatAction) -> String {
                     len => gettext!("{} people are uploading voice notes", len),
                 }
             } else {
-                gettext!("uploading a voice note ({}%)", action.progress)
+                gettext!("uploading a voice note{}", action_progress(action.progress))
             }
         }
         WatchingAnimations(action) => {
@@ -1316,6 +1316,14 @@ fn stringify_user(user: &User, use_full_name: bool) -> String {
         user.first_name()
     } else {
         gettext("Deleted")
+    }
+}
+
+fn action_progress(percentage: i32) -> String {
+    if percentage == 0 {
+        String::new()
+    } else {
+        gettext!(" ({}%)", percentage)
     }
 }
 

@@ -78,9 +78,12 @@ pub(crate) fn message_content(message: &Message) -> String {
     match message.content().0 {
         MessageText(data) => data.text.text,
         MessageAnimation(data) => message_animation(&data.caption.text),
-        MessageAudio(data) => {
-            message_audio(&data.audio.title, &data.audio.performer, &data.caption.text)
-        }
+        MessageAudio(data) => message_audio(
+            &data.audio.file_name,
+            &data.audio.title,
+            &data.audio.performer,
+            &data.caption.text,
+        ),
         MessageDocument(data) => message_document(&data.document.file_name, &data.caption.text),
         MessagePhoto(data) => message_photo(&data.caption.text),
         MessageExpiredPhoto => gettext("Photo has expired"),
@@ -135,23 +138,47 @@ fn message_animation(caption: &str) -> String {
     }
 }
 
-fn message_audio(title: &str, performer: &str, caption: &str) -> String {
-    if caption.is_empty() {
-        // Translators: This is an audio with the title and performer
-        gettext_f(
-            "{title} – {performer}",
-            &[("title", title), ("performer", performer)],
-        )
+fn message_audio(file_name: &str, title: &str, performer: &str, caption: &str) -> String {
+    if title.is_empty() && performer.is_empty() {
+        if caption.is_empty() {
+            file_name.to_string()
+        } else {
+            // Translators: This is an audio with the caption
+            gettext_f(
+                "{file_name}, {caption}",
+                &[("file_name", file_name), ("caption", caption)],
+            )
+        }
     } else {
-        // Translators: This is an audio with the caption
-        gettext_f(
-            "{title} – {performer}, {caption}",
-            &[
-                ("title", title),
-                ("performer", performer),
-                ("caption", caption),
-            ],
-        )
+        let title = if title.is_empty() {
+            gettext("Unknown Track")
+        } else {
+            title.into()
+        };
+
+        let performer = if performer.is_empty() {
+            gettext("Unknown Artist")
+        } else {
+            performer.into()
+        };
+
+        if caption.is_empty() {
+            // Translators: This is an audio with the title and performer
+            gettext_f(
+                "{title} – {performer}",
+                &[("title", &title), ("performer", &performer)],
+            )
+        } else {
+            // Translators: This is an audio with the caption
+            gettext_f(
+                "{title} – {performer}, {caption}",
+                &[
+                    ("title", &title),
+                    ("performer", &performer),
+                    ("caption", caption),
+                ],
+            )
+        }
     }
 }
 

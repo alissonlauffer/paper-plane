@@ -5,6 +5,7 @@ use glib::clone;
 use gtk::{gio, glib, CompositeTemplate};
 
 use crate::config::APP_ID;
+use crate::tdlib::User;
 use crate::utils::spawn;
 use crate::Session;
 
@@ -12,11 +13,13 @@ mod imp {
     use super::*;
     use once_cell::sync::Lazy;
     use once_cell::unsync::OnceCell;
+    use std::cell::RefCell;
 
     #[derive(Debug, Default, CompositeTemplate)]
     #[template(resource = "/app/drey/paper-plane/ui/preferences-window.ui")]
     pub(crate) struct PreferencesWindow {
         pub(super) session: OnceCell<Session>,
+        pub(super) user: RefCell<Option<User>>,
         #[template_child]
         pub(super) follow_system_colors_switch: TemplateChild<gtk::Switch>,
         #[template_child]
@@ -33,6 +36,7 @@ mod imp {
 
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
+            Self::Type::bind_template_callbacks(klass);
 
             klass.install_action_async(
                 "preferences.clear-cache",
@@ -51,9 +55,14 @@ mod imp {
     impl ObjectImpl for PreferencesWindow {
         fn properties() -> &'static [glib::ParamSpec] {
             static PROPERTIES: Lazy<Vec<glib::ParamSpec>> = Lazy::new(|| {
-                vec![glib::ParamSpecObject::builder::<Session>("session")
-                    .construct_only()
-                    .build()]
+                vec![
+                    glib::ParamSpecObject::builder::<Session>("session")
+                        .construct_only()
+                        .build(),
+                    glib::ParamSpecObject::builder::<User>("user")
+                        .explicit_notify()
+                        .build(),
+                ]
             });
             PROPERTIES.as_ref()
         }
@@ -61,6 +70,7 @@ mod imp {
         fn set_property(&self, _id: usize, value: &glib::Value, pspec: &glib::ParamSpec) {
             match pspec.name() {
                 "session" => self.session.set(value.get().unwrap()).unwrap(),
+                "user" => self.obj().set_user(value.get().unwrap()),
                 _ => unimplemented!(),
             }
         }
@@ -70,6 +80,7 @@ mod imp {
 
             match pspec.name() {
                 "session" => obj.session().to_value(),
+                "user" => obj.user().to_value(),
                 _ => unimplemented!(),
             }
         }
@@ -110,12 +121,19 @@ glib::wrapper! {
         @extends gtk::Widget, gtk::Window, adw::Window, adw::PreferencesWindow;
 }
 
+#[gtk::template_callbacks]
 impl PreferencesWindow {
-    pub(crate) fn new(parent_window: Option<&gtk::Window>, session: &Session) -> Self {
+    pub(crate) fn new(parent_window: Option<&gtk::Window>, session: &Session, user: &User) -> Self {
         glib::Object::builder()
             .property("transient-for", parent_window)
             .property("session", session)
+            .property("user", user)
             .build()
+    }
+
+    #[template_callback]
+    fn data_and_storage_subpage(&self) {
+        println!("Data and storage subpage called");
     }
 
     fn setup_bindings(&self) {
@@ -215,5 +233,18 @@ impl PreferencesWindow {
 
     pub(crate) fn session(&self) -> &Session {
         self.imp().session.get().unwrap()
+    }
+
+    pub(crate) fn user(&self) -> Option<User> {
+        self.imp().user.borrow().clone()
+    }
+
+    fn set_user(&self, user: Option<User>) {
+        if self.user() == user {
+            return;
+        }
+
+        self.imp().user.replace(user);
+        self.notify("user");
     }
 }

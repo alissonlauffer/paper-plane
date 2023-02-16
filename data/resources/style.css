@@ -400,3 +400,11 @@ window.chat-info .main-page > list {
 .small-pill {
   border-radius: 18px;
 }
+
+/* css grabbed from .app-version class from Adw about windows */
+.edit-profile {
+  padding: 3px 18px;
+  color: @accent_color;
+  border-radius: 999px;
+  margin-top: 3px;
+}

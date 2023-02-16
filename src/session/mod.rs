@@ -83,7 +83,8 @@ mod imp {
             });
             klass.install_action("session.show-preferences", None, move |widget, _, _| {
                 let parent_window = widget.root().and_then(|r| r.downcast().ok());
-                let preferences = PreferencesWindow::new(parent_window.as_ref(), widget);
+                let preferences =
+                    PreferencesWindow::new(parent_window.as_ref(), widget, &widget.me());
                 preferences.present();
             });
             klass.install_action("session.show-contacts", None, move |widget, _, _| {

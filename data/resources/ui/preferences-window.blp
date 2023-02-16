@@ -2,7 +2,109 @@ using Gtk 4.0;
 using Adw 1;
 
 template $PreferencesWindow : Adw.PreferencesWindow {
+  default-width: 360;
+
   Adw.PreferencesPage {
+
+    Adw.PreferencesGroup {
+      $ComponentsAvatar {
+        size: 128;
+        item: bind template.user;
+      }
+
+      Label name_label {
+        label: bind template.user as <$User>.first_name;
+        wrap: true;
+        margin-top: 12;
+        styles ["title-1"]
+      }
+
+      Box {
+        orientation: horizontal;
+        halign: center;
+        spacing: 4;
+
+        Label phone_number_label {
+          label: bind template.user as <$User>.phone_number;
+        }
+
+        Label separator_label {
+          label: "•";
+        }
+
+        Label username_label {
+          label: bind template.user as <$User>.username;
+        }
+      }
+
+      Button edit_profile_button {
+        styles ["edit-profile"]
+
+        label: _("Edit");
+        halign: center;
+        margin-top: 12;
+      }
+    }
+
+    Adw.PreferencesGroup {
+      Adw.ActionRow {
+        title: _("Notifications");
+        activatable: true;
+
+        Gtk.Image {
+          icon-name: "go-next-symbolic";
+        }
+      }
+
+      Adw.ActionRow {
+        title: _("Privacy &amp; Security");
+        activatable: true;
+
+        Gtk.Image {
+          icon-name: "go-next-symbolic";
+        }
+      }
+
+      Adw.ActionRow {
+        title: _("Data &amp; Storage");
+        activatable: true;
+        activated => $data_and_storage_subpage() swapped;
+
+        Gtk.Image {
+          icon-name: "go-next-symbolic";
+        }
+      }
+    }
+
+    Adw.PreferencesGroup {
+      Adw.ActionRow {
+        title: _("Chat Folders");
+        activatable: true;
+
+        Gtk.Image {
+          icon-name: "go-next-symbolic";
+        }
+      }
+
+      Adw.ActionRow {
+        title: _("Appearance");
+        activatable: true;
+
+        Gtk.Image {
+          icon-name: "go-next-symbolic";
+        }
+      }
+
+      Adw.ActionRow {
+        title: _("Stickers");
+        activatable: true;
+
+        Gtk.Image {
+          icon-name: "go-next-symbolic";
+        }
+      }
+    }
+
     Adw.PreferencesGroup {
       title: _("Color Scheme");
 

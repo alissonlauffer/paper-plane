@@ -3,8 +3,11 @@ use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate};
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
+use tdlib::enums::MessageContent;
 
-use crate::session::content::message_row::{MessageIndicators, MessageLabel, MessageReply};
+use crate::session::content::message_row::{
+    LinkPreview, MessageIndicators, MessageLabel, MessageReply,
+};
 use crate::tdlib::{Chat, ChatType, Message, MessageSender, SponsoredMessage};
 
 const MAX_WIDTH: i32 = 400;
@@ -47,6 +50,8 @@ mod imp {
                 .MessageLabel message_label {
                     visible: false;
                 }
+
+                Adw.Bin link_preview_bin {}
             }
 
             [overlay]
@@ -72,6 +77,8 @@ mod imp {
         pub(super) message_label: TemplateChild<MessageLabel>,
         #[template_child]
         pub(super) indicators: TemplateChild<MessageIndicators>,
+        #[template_child]
+        pub(super) link_preview_bin: TemplateChild<adw::Bin>,
     }
 
     #[glib::object_subclass]
@@ -228,6 +235,17 @@ impl MessageBubble {
 
             imp.sender_label.set_label("");
             imp.sender_label.set_visible(false);
+        }
+
+        // Show web page preview, if needed
+        if let MessageContent::MessageText(content) = message.content().0 {
+            if content.web_page.is_some() {
+                let link_preview = LinkPreview::new(message);
+
+                imp.link_preview_bin.set_child(Some(&link_preview));
+            } else {
+                imp.link_preview_bin.set_child(gtk::Widget::NONE);
+            }
         }
     }
 

@@ -400,3 +400,21 @@ window.chat-info .main-page > list {
 .small-pill {
   border-radius: 18px;
 }
+
+.separator {
+  background-color: @accent_color;
+  padding-left: 1px;
+}
+
+.outgoing .separator {
+  background-color: @accent_fg_color;
+}
+
+.link-preview-name,
+.link-preview-title {
+  font-weight: bold;
+}
+
+.link-preview {
+  padding-top: 6px;
+}

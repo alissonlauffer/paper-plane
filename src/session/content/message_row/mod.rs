@@ -71,6 +71,9 @@ mod imp {
                 widget.reply()
             });
             klass.install_action("message-row.edit", None, move |widget, _, _| widget.edit());
+            klass.install_action("message-row.pin", None, move |widget, _, _| {
+                widget.show_pin_dialog()
+            });
             klass.install_action("message-row.revoke-delete", None, move |widget, _, _| {
                 widget.show_delete_dialog(true)
             });
@@ -160,6 +163,35 @@ impl MessageRow {
             self.activate_action("chat-history.edit", Some(&message.id().to_variant()))
                 .unwrap();
         }
+    }
+
+    fn show_pin_dialog(&self) {
+        let window: gtk::Window = self.root().and_then(|root| root.downcast().ok()).unwrap();
+
+        let dialog = adw::MessageDialog::builder()
+            .heading(gettext("Confirm Message Pinning"))
+            .body_use_markup(true)
+            .body(gettext("Do you want to pin this message?"))
+            .transient_for(&window)
+            .build();
+
+        dialog.add_responses(&[("no", &gettext("_No")), ("yes", &gettext("_Yes"))]);
+        dialog.set_default_response(Some("no"));
+
+        dialog.choose(
+            gio::Cancellable::NONE,
+            clone!(@weak self as obj => move |response| {
+                if response == "yes" {
+                    if let Ok(message) = obj.message().downcast::<Message>() {
+                        spawn(async move {
+                            if let Err(e) = message.pin(false, false).await {
+                                log::warn!("Failed to pin message: {:?}", e);
+                            }
+                        });
+                    }
+                }
+            }),
+        );
     }
 
     fn show_delete_dialog(&self, revoke: bool) {

@@ -207,6 +207,21 @@ impl Message {
         }
     }
 
+    pub(crate) async fn pin(
+        &self,
+        disable_notification: bool,
+        only_for_self: bool,
+    ) -> Result<(), TdError> {
+        functions::pin_chat_message(
+            self.chat().id(),
+            self.id(),
+            disable_notification,
+            only_for_self,
+            self.chat().session().client_id(),
+        )
+        .await
+    }
+
     pub(crate) async fn delete(&self, revoke: bool) -> Result<(), TdError> {
         functions::delete_messages(
             self.chat().id(),

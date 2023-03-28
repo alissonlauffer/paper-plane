@@ -58,6 +58,7 @@ mod imp {
         pub(super) id: Cell<i64>,
         pub(super) sender: OnceCell<MessageSender>,
         pub(super) is_outgoing: Cell<bool>,
+        pub(super) is_pinned: Cell<bool>,
         pub(super) can_be_edited: Cell<bool>,
         pub(super) can_be_deleted_only_for_self: Cell<bool>,
         pub(super) can_be_deleted_for_all_users: Cell<bool>,
@@ -87,6 +88,9 @@ mod imp {
                         .read_only()
                         .build(),
                     glib::ParamSpecBoolean::builder("is-outgoing")
+                        .read_only()
+                        .build(),
+                    glib::ParamSpecBoolean::builder("is-pinned")
                         .read_only()
                         .build(),
                     glib::ParamSpecBoolean::builder("can-be-edited")
@@ -135,6 +139,7 @@ mod imp {
                 "id" => obj.id().to_value(),
                 "sender" => obj.sender().to_value(),
                 "is-outgoing" => obj.is_outgoing().to_value(),
+                "is-pinned" => obj.is_pinned().to_value(),
                 "can-be-edited" => obj.can_be_edited().to_value(),
                 "can-be-deleted-only-for-self" => obj.can_be_deleted_only_for_self().to_value(),
                 "can-be-deleted-for-all-users" => obj.can_be_deleted_for_all_users().to_value(),
@@ -173,6 +178,7 @@ impl Message {
         imp.id.set(td_message.id);
         imp.sender.set(sender).unwrap();
         imp.is_outgoing.set(td_message.is_outgoing);
+        imp.is_pinned.set(td_message.is_pinned);
         imp.can_be_edited.set(td_message.can_be_edited);
         imp.can_be_deleted_only_for_self
             .set(td_message.can_be_deleted_only_for_self);
@@ -222,6 +228,15 @@ impl Message {
         .await
     }
 
+    pub(crate) async fn unpin(&self) -> Result<(), TdError> {
+        functions::unpin_chat_message(
+            self.chat().id(),
+            self.id(),
+            self.chat().session().client_id(),
+        )
+        .await
+    }
+
     pub(crate) async fn delete(&self, revoke: bool) -> Result<(), TdError> {
         functions::delete_messages(
             self.chat().id(),
@@ -242,6 +257,10 @@ impl Message {
 
     pub(crate) fn is_outgoing(&self) -> bool {
         self.imp().is_outgoing.get()
+    }
+
+    pub(crate) fn is_pinned(&self) -> bool {
+        self.imp().is_pinned.get()
     }
 
     pub(crate) fn can_be_edited(&self) -> bool {

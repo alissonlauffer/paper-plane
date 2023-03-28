@@ -21,6 +21,12 @@ menu model {
     }
 
     item {
+      label: _("Un_pin");
+      action: "message-row.unpin";
+      hidden-when: "action-disabled";
+    }
+
+    item {
       label: _("Delete for Ever_yone");
       action: "message-row.revoke-delete";
       hidden-when: "action-disabled";

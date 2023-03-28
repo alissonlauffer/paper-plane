@@ -74,6 +74,9 @@ mod imp {
             klass.install_action("message-row.pin", None, move |widget, _, _| {
                 widget.show_pin_dialog()
             });
+            klass.install_action("message-row.unpin", None, move |widget, _, _| {
+                widget.show_unpin_dialog()
+            });
             klass.install_action("message-row.revoke-delete", None, move |widget, _, _| {
                 widget.show_delete_dialog(true)
             });
@@ -185,6 +188,35 @@ impl MessageRow {
                     if let Ok(message) = obj.message().downcast::<Message>() {
                         spawn(async move {
                             if let Err(e) = message.pin(false, false).await {
+                                log::warn!("Failed to pin message: {:?}", e);
+                            }
+                        });
+                    }
+                }
+            }),
+        );
+    }
+
+    fn show_unpin_dialog(&self) {
+        let window: gtk::Window = self.root().and_then(|root| root.downcast().ok()).unwrap();
+
+        let dialog = adw::MessageDialog::builder()
+            .heading(gettext("Confirm Message Unpinning"))
+            .body_use_markup(true)
+            .body(gettext("Do you want to unpin this message?"))
+            .transient_for(&window)
+            .build();
+
+        dialog.add_responses(&[("no", &gettext("_No")), ("yes", &gettext("_Yes"))]);
+        dialog.set_default_response(Some("no"));
+
+        dialog.choose(
+            gio::Cancellable::NONE,
+            clone!(@weak self as obj => move |response| {
+                if response == "yes" {
+                    if let Ok(message) = obj.message().downcast::<Message>() {
+                        spawn(async move {
+                            if let Err(e) = message.unpin().await {
                                 log::warn!("Failed to pin message: {:?}", e);
                             }
                         });
@@ -333,9 +365,33 @@ impl MessageRow {
         }
     }
 
+    fn can_pin_message(&self) -> bool {
+        if let Some(message) = self.message().downcast_ref::<Message>() {
+            can_pin_messages_in_chat(&message.chat())
+        } else {
+            false
+        }
+    }
+
+    fn is_pinned(&self) -> bool {
+        if let Some(message) = self.message().downcast_ref::<Message>() {
+            message.is_pinned()
+        } else {
+            false
+        }
+    }
+
     fn update_actions(&self) {
         self.action_set_enabled("message-row.reply", self.can_reply_to_message());
         self.action_set_enabled("message-row.edit", self.can_edit_message());
+        self.action_set_enabled(
+            "message-row.pin",
+            self.can_pin_message() && !self.is_pinned(),
+        );
+        self.action_set_enabled(
+            "message-row.unpin",
+            self.can_pin_message() && self.is_pinned(),
+        );
 
         if let Some(message) = self.message().downcast_ref::<Message>() {
             self.action_set_enabled("message-row.delete", message.can_be_deleted_only_for_self());
@@ -448,4 +504,28 @@ fn can_send_messages_in_chat(chat: &Chat) -> bool {
             Banned(_) => false,
         })
         .unwrap_or(true)
+}
+
+fn can_pin_messages_in_chat(chat: &Chat) -> bool {
+    use tdlib::enums::ChatMemberStatus::*;
+
+    if let ChatType::Private(_) = chat.type_() {
+        return true;
+    }
+
+    let member_status = match chat.type_() {
+        ChatType::Supergroup(supergroup) => Some(supergroup.status()),
+        ChatType::BasicGroup(supergroup) => Some(supergroup.status()),
+        _ => None,
+    };
+    member_status
+        .map(|s| match s.0 {
+            Creator(_) => true,
+            Administrator(data) => data.rights.can_pin_messages,
+            Member => chat.permissions().0.can_pin_messages,
+            Restricted(_) => chat.permissions().0.can_pin_messages,
+            Left => false,
+            Banned(_) => false,
+        })
+        .unwrap_or(false)
 }

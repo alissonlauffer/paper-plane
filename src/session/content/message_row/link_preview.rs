@@ -28,8 +28,6 @@ mod imp {
         pub(super) content_label: TemplateChild<gtk::Label>,
         #[template_child]
         pub(super) separator: TemplateChild<gtk::Separator>,
-        #[template_child]
-        pub(super) photo_thumbnail: TemplateChild<gtk::Picture>,
     }
 
     #[glib::object_subclass]

@@ -99,19 +99,17 @@ impl LinkPreview {
             return;
         }
 
-        if let Some(message) = message.downcast_ref::<Message>() {
-            if let MessageContent::MessageText(content) = message.content().0 {
-                if let Some(web_page) = content.web_page {
-                    let site_name = format!(
-                        "<a href=\"{}\">{}</a>",
-                        escape(&web_page.url),
-                        web_page.site_name
-                    );
-                    imp.name_label.set_markup(&site_name);
-                    imp.title_label.set_text(&web_page.title);
-                    imp.content_label
-                        .set_markup(&parse_formatted_text(web_page.description));
-                }
+        if let MessageContent::MessageText(content) = message.content().0 {
+            if let Some(web_page) = content.web_page {
+                let site_name = format!(
+                    "<a href=\"{}\">{}</a>",
+                    escape(&web_page.url),
+                    web_page.site_name
+                );
+                imp.name_label.set_markup(&site_name);
+                imp.title_label.set_text(&web_page.title);
+                imp.content_label
+                    .set_markup(&parse_formatted_text(web_page.description));
             }
         }
 

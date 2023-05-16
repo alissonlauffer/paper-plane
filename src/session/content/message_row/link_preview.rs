@@ -1,10 +1,11 @@
+use gtk::glib::closure;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate};
 use tdlib::enums::MessageContent;
 
 use crate::session::content::message_row::MessageBase;
-use crate::tdlib::Message;
+use crate::tdlib::{Message, BoxedMessageContent};
 use crate::utils::{escape, parse_formatted_text};
 
 mod imp {
@@ -99,23 +100,32 @@ impl LinkPreview {
             return;
         }
 
-        if let MessageContent::MessageText(content) = message.content().0 {
-            if let Some(web_page) = content.web_page {
-                let site_name = format!(
-                    "<a href=\"{}\">{}</a>",
-                    escape(&web_page.url),
-                    web_page.site_name
-                );
-                imp.name_label.set_markup(&site_name);
-                imp.title_label.set_text(&web_page.title);
-                imp.content_label
-                    .set_markup(&parse_formatted_text(web_page.description));
-            }
-        }
-
         let mut bindings = imp.bindings.borrow_mut();
         while let Some(binding) = bindings.pop() {
             binding.unwatch();
+        }
+
+        let link_preview_binding = Message::this_expression("content")
+            .chain_closure::<String>(closure!(|_: Message, content: BoxedMessageContent| {
+                self.update_message_content(content)
+            }));
+    }
+}
+
+pub(crate) fn update_message_content(content: BoxedMessageContent) {
+    let imp = self.imp();
+
+    if let MessageContent::MessageText(content) = content.0 {
+        if let Some(web_page) = content.web_page {
+            let site_name = format!(
+                "<a href=\"{}\">{}</a>",
+                escape(&web_page.url),
+                web_page.site_name
+            );
+            imp.name_label.set_markup(&site_name);
+            imp.title_label.set_text(&web_page.title);
+            imp.content_label
+                .set_markup(&parse_formatted_text(web_page.description));
         }
     }
 }

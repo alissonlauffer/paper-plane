@@ -18,82 +18,89 @@
   </a>
 </p>
 
-<br>
-
 <p align="center">
   <img width=600 src="data/resources/screenshots/screenshot1.png" alt="Screenshot"/>
 </p>
 
-Paper Plane is an alternative Telegram client.
-It uses libadwaita for its user interface and strives to meet the design principles of the GNOME desktop.
+## Overview
 
-Paper Plane is still under development and not yet feature-complete.
-However, the following things are already working:
+Paper Plane is an alternative Telegram client that utilizes libadwaita for its user interface, aiming to adhere to the design principles of the GNOME desktop.
 
-- The use of multiple accounts at the same time.
-- Viewing text messages, images, stickers and files.
-- Sending text messages and images.
+## Features
+
+While Paper Plane is still under development and not yet feature complete, the following functionalities are already implemented:
+
+- Multi-account support.
+- Viewing of text messages, images, stickers, and files.
+- Sending of text messages and images.
 - Replying to messages.
-- Searching for groups and persons.
+- Chats and users search.
 
 ## Installation Instructions
 
-Paper Plane is an in-development project and it isn't considered stable software yet.
+**Note:** Paper Plane is currently under development and may not be considered stable software.
 
-Also, the included API credentials in the Flathub release are still very new and untested. In some cases, your account may end up banned by Telegram (check the `Telegram API Credentials` section below).
+All installation methods, except Flathub, default to using test API credentials. The use of these credentials may result in your account being **banned**, especially if your account was recently created or it's somehow considered suspicious by Telegram.
 
-You can avoid that by using a custom built version of Paper Plane with provided API credentials via meson options, like [this AUR package](https://aur.archlinux.org/packages/paper-plane-git) which you may prefer using if you use Arch Linux. These API credentials
-are much older and thus the risk of getting banned is reduced.
+You can recover a banned account by sending an email to `recover@telegram.org`, but if you prefer to be on the safe side, we recommend trying the Flathub builds, or building the app yourself with more secure credentials.
 
 ### Flathub Beta
 
-But, if you still feel brave enough, you can install the latest release from `Flathub Beta`. To do this, you need to add the the Flathub Beta remote first
+If you'd like to try Paper Plane, you can install the latest beta release from the Flathub Beta repository using the following command:
+
 ```shell
 $ flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
 ```
-Then you can install the application by issuing
+
+Then you can install the application by issuing:
+
 ```shell
 $ flatpak install flathub-beta app.drey.PaperPlane
 ```
-Paper Plane can be kept up to date by issuing flatpak's update command like
+
+To keep Paper Plane updated, use the flatpak update command:
+
 ```shell
 $ flatpak update
 ```
 
 ### CI Build (Not Recommended)
 
-You can also grab the latest CI build with test API credentials from [here](https://nightly.link/paper-plane-developers/paper-plane/workflows/ci/main).
-Then you need to unzip the archive's content and install the application with the command `flatpak install paper-plane.flatpak`. Keep in mind that these test credentials are even more riskier than those from the Flathub release. Also, you need to manually keep it updated.
+If you want to try the latest development version with test API credentials, you can download the latest CI build [here](https://nightly.link/paper-plane-developers/paper-plane/workflows/ci/main). After downloading, unzip the archive's content and install the application by using the command:
 
-## Telegram API Credentials
+```shell
+$ flatpak install paper-plane.flatpak
+```
 
-Telegram requires custom clients to set some credentials for using their API. Paper Plane doesn't provide official API credentials, so the packagers are expected to set their own credentials for distributing the app, obtainable at https://my.telegram.org/. However, Paper Plane includes the Telegram's test credentials by default, which are very limited, but usable (especially for development). However, it's known that Telegram sometimes decides to ban accounts that use such credentials (especially newer accounts). For that reason, it's suggested to use your own API credentials, which can be set by using meson options (see the `Build Instructions` section below).
+Please note that these builds have a higher risk of problems due to the more bleeding edge code and the use of testing credentials, as mentioned in [Installation Instructions](#installation-instructions).
+In addition, you'll need to keep the application updated manually.
 
 ## Build Instructions
 
-### Gnome Builder
+### GNOME Builder
 
-Using Gnome Builder is the easiest way to get the app built without even using the terminal: just clone the repository and press the big "Run" button at the top and it will automatically build all the required dependencies together with the app.
+The simplest way to build Paper Plane is by using GNOME Builder. Clone the repository and click the "Run" button to automatically build the app along with its dependencies, without even requiring you to open your terminal.
 
 ### Meson
 
 #### Prerequisites
 
-The following packages are required to build Paper Plane:
+Ensure you have the following packages installed to build Paper Plane:
 
 - meson
 - cargo
 - GTK >= 4.10 (with the patch included in the build-aux directory)
 - libadwaita >= 1.4
+- [rlottie](https://github.com/paper-plane-developers/rlottie)
 - [TDLib 1.8.14](https://github.com/tdlib/td/commit/8517026415e75a8eec567774072cbbbbb52376c1)
-- [Telegram API Credentials](https://my.telegram.org/) (optional, but recommended)
+- [Telegram API Credentials](https://my.telegram.org/auth?to=apps) (optional, but recommended)
 
-Additionally, Paper Plane requires the following GStreamer plugins installed in your system to correctly show all media files:
+Also, install the following GStreamer plugins to handle media files correctly:
 
 - gstreamer-libav
 - gstreamer-plugins-good
 
-#### Instructions
+#### Building
 
 ```shell
 meson . _build -Dtg_api_id=ID -Dtg_api_hash=HASH
@@ -101,15 +108,12 @@ ninja -C _build
 sudo ninja -C _build install
 ```
 
-## Contribution
+## Contributing
 
-Any type of participation is encouraged. If you want to translate, you can refer to [our weblate project](https://hosted.weblate.org/engage/paper-plane). But also design and art contributions are welcome. For this [our design repository](https://github.com/paper-plane-developers/paper-plane-designs) is the first place to go.
+We welcome all forms of contribution, including translation, design, art, and code. To translate, refer to [our weblate project](https://hosted.weblate.org/engage/paper-plane). Design contributions can be made to [our design repository](https://github.com/paper-plane-developers/paper-plane-designs).
 
-If you want to contribute code, please keep your commits in the style of [conventional commits](https://www.conventionalcommits.org/en/v1.0.0). The only difference we make is that we capitalize the actual description after the colon ":" at the beginning of the sentence.
+For code contributions, please format your commit messages according to [conventional commits](https://www.conventionalcommits.org/en/v1.0.0), but capitalizing the description after the colon (`:`).
 
+## Acknowledgements
 
-## Acknowledgment
-
-The general code architecture was heavily inspired by [Fractal](https://gitlab.gnome.org/GNOME/fractal).
-
-Also, some logic is inspired by [Telegram X](https://github.com/TGX-Android/Telegram-X), which helps to understand how to use some TDLib features correctly and to their fullest potential.
+Paper Plane's code architecture is inspired by [Fractal](https://gitlab.gnome.org/GNOME/fractal), and its logic is influenced by [Telegram X](https://github.com/TGX-Android/Telegram-X). The latter makes it easier to rightly use some of TDLib's features and take full advantage of its potential.

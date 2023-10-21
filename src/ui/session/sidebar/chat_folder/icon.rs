@@ -109,7 +109,7 @@ mod imp {
                                 "Study" => "",
                                 "Trade" => "",
                                 "Travel" => "emoji-travel-symbolic",
-                                "Unmuted" => "",
+                                "Unmuted" => "unmuted-symbolic",
                                 "Unread" => "mail-unread-symbolic",
                                 "Work" => "",
                                 _ => "folder-symbolic",

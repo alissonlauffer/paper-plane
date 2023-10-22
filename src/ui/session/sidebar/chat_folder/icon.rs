@@ -111,7 +111,7 @@ mod imp {
                                 "Travel" => "emoji-travel-symbolic",
                                 "Unmuted" => "unmuted-symbolic",
                                 "Unread" => "mail-unread-symbolic",
-                                "Work" => "",
+                                "Work" => "work-symbolic",
                                 _ => "folder-symbolic",
                             },
                         }

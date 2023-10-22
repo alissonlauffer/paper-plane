@@ -103,7 +103,7 @@ mod imp {
                                 "Note" => "",
                                 "Palette" => "",
                                 "Party" => "",
-                                "Private" => "",
+                                "Private" => "private-symbolic",
                                 "Setup" => "",
                                 "Sport" => "",
                                 "Study" => "",

@@ -93,7 +93,7 @@ mod imp {
                                 "Favorite" => "",
                                 "Flower" => "",
                                 "Game" => "applications-games-symbolic",
-                                "Groups" => "",
+                                "Groups" => "groups-symbolic",
                                 "Home" => "user-home-symbolic",
                                 "Light" => "",
                                 "Like" => "",

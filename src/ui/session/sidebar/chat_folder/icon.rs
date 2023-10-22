@@ -87,7 +87,7 @@ mod imp {
                                 "Book" => "",
                                 "Bots" => "",
                                 "Cat" => "",
-                                "Channels" => "",
+                                "Channels" => "channels-symbolic",
                                 "Crown" => "",
                                 "Custom" => "folder-symbolic",
                                 "Favorite" => "",
